@@ -1,0 +1,36 @@
+%ic {
+  font-family: "icons";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+[class*="_icon-"] {
+  &:before {
+    @extend %ic;
+    display: block;
+  }
+  &:after {
+    @extend %ic;
+    display: block;
+  }
+}
+
+._icon-arrow-left:after {
+  content: "\e901";
+  position: absolute;
+  margin-left: calc(100% - 28px);
+  margin-top: -38px;
+  font-size: 18px;
+  color: #d5dde0;
+  font-weight: 500;
+
+  transform: rotate(-90deg);
+}
+._icon-arrow-left:hover:after {
+  color: #1152fd;
+  cursor: pointer;
+}

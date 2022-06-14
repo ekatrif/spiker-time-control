@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Контроль времени спикера</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      @@include('html/_header.htm')
+      <main class="main__container">
+        <section class="select-teamlead">
+          <div
+            id="select-teamlead"
+            class="select-teamlead__input _icon-arrow-left"
+          ></div>
+          <div class="select-teamlead__dropdown"></div>
+        </section>
+        <section id="employeesList">
+          Тимлид: ...<br />Список сотрудников:
+        </section>
+        <section id="employee-card">Таймер</section>
+      </main>
+      @@include('html/_footer.htm')
+    </div>
+    @@include('html/_js.htm')
+  </body>
+</html>
