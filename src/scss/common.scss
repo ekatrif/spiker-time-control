@@ -57,7 +57,20 @@ section {
     // color: #d5dde0;
   }
 
-  &__dropdown {
-    margin: 5px 0;
+  &__list {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    cursor: pointer;
+  }
+}
+.select-employee {
+  margin: 20px 0;
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    cursor: pointer;
   }
 }

@@ -1,0 +1,36 @@
+[class*="_icon-"]:before, [class*="_icon-"]:after {
+  font-family: "icons";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class*="_icon-"]:before {
+  display: block;
+}
+
+[class*="_icon-"]:after {
+  display: block;
+}
+
+._icon-arrow-left:after {
+  content: "\e901";
+  position: absolute;
+  margin-left: calc(100% - 28px);
+  margin-top: -38px;
+  font-size: 18px;
+  color: #d5dde0;
+  font-weight: 500;
+  -webkit-transform: rotate(-90deg);
+          transform: rotate(-90deg);
+}
+
+._icon-arrow-left:hover:after {
+  color: #1152fd;
+  cursor: pointer;
+}
+/*# sourceMappingURL=icons.css.map */

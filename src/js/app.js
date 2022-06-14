@@ -194,6 +194,6 @@ import * as flsScroll from "./files/scroll/scroll.js";
 import "./files/script.js";
 import "./files/modules/test.js";
 
-import "./files/modules/select-teamlead.js";
+import "./files/modules/getTeameadsList.js";
 import "./files/modules/input.js";
 //============================================================================================================================================================================================================================================
