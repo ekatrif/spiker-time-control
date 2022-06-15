@@ -32,7 +32,7 @@ section {
   display: flex;
   flex-direction: column;
 }
-.select-teamlead {
+.select-team {
   &__input {
     margin: 10px 0;
     position: relative;
@@ -42,6 +42,7 @@ section {
     background: #f7f8f9;
     border: 0.5px solid #d5dde0;
     border-radius: 14px;
+    width: 100%;
     height: 60px;
     padding-left: 16px;
     padding-right: 16px;
@@ -59,18 +60,55 @@ section {
 
   &__list {
     margin: 20px 0;
+    display: grid;
+    grid-template-rows: 1fr;
+    gap: 56px;
+    cursor: pointer;
+  }
+  &__item {
+    position: relative;
+    //line-height: 2;
+  }
+  &__item:after {
+    position: absolute;
+    content: "";
+    bottom: -28px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: #d5dde0;
+  }
+  &__item_active {
+    color: #1152fd;
+  }
+}
+.select-employee {
+  &__list {
     display: flex;
     flex-direction: column;
     gap: 20px;
     cursor: pointer;
   }
 }
-.select-employee {
-  margin: 20px 0;
-  &__list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    cursor: pointer;
+.employees__teamlead {
+  display: grid;
+  grid-template-rows: 1fr;
+
+  &__name {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #3e4958;
+  }
+
+  &__position {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #3e4958;
   }
 }

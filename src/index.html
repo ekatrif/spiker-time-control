@@ -9,17 +9,19 @@
     <div class="wrapper">
       @@include('html/_header.htm')
       <main class="main__container">
-        <section class="select-teamlead">
+        <section class="select-team">
           <div
-            id="select-teamlead"
-            class="select-teamlead__input _icon-arrow-left"
+            id="select-team"
+            class="select-team__input _icon-arrow-left"
           ></div>
-          <div id="teamlead-list" class="select-teamlead__list"></div>
+          <div id="team-list" class="select-team__list"></div>
         </section>
         <section class="select-employee">
-          <div id="employeesList" class="select-employee__list"></div>
+          <div id="employeesList" class="select-employee__list employees"></div>
         </section>
-        <section id="employee-card">Таймер</section>
+        <section class="employee-card">
+          <div id="employee-card" class="employee-card__container"></div>
+        </section>
       </main>
       @@include('html/_footer.htm')
     </div>
