@@ -10,7 +10,9 @@ let jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json";
 
 inputSelectGroup.innerHTML = "<input  type='text' placeholder='Выбор группы'/>";
 
-//Получаем данные о командах ит сразу записываем их в переменную
+const timeForPersonDefault = 300000; //5 минут на сотрудника
+
+//Получаем данные о командах и сразу записываем их в переменную
 let jsonData;
 async function getJson(url) {
   try {
@@ -20,24 +22,24 @@ async function getJson(url) {
     } else {
       jsonData = await response.json();
       console.log("Данные получены");
+      //Получаем список команд
+      getTeamList(jsonData);
       return jsonData;
     }
   } catch (error) {
+    teamList.innerHTML = "Данные не получены :(";
     if (error.message === "Код ответа сервера не 200-299.") {
       throw error;
     } else throw new Error("Данные не получены");
   }
 }
-getJson(jsonUrl);
-//console.log(jsonData);
 
-//Загружаем список команд
-let listItems = inputSelectGroup.addEventListener("click", () =>
-  getTeamList(jsonData)
-);
+inputSelectGroup.addEventListener("click", function () {
+  getJson(jsonUrl);
+});
+
 function getTeamList(data) {
   teamList.innerHTML = ``;
-
   for (let i = 0; i < data.teams.length; i++) {
     teamList.innerHTML += `<div class="select-team__item">${data.teams[i].orgName}</div`;
   }
@@ -56,7 +58,7 @@ function getEmployeesList(data, e) {
   for (let i = 0; i < data.teams.length; i++) {
     if (e.target.textContent === data.teams[i].orgName) {
       //Сохраняем номер выбранной команды
-
+      showTotalTime(jsonData, i);
       e.target.classList.add("select-team__item_active");
       //Отображаем данные тимлида
       employeesList.innerHTML += `<div class="employees__teamlead"><div class="employees__teamlead__name">${data.teams[i].teamlead.fullName}</div><div class="employees__teamlead__position">${data.teams[i].teamlead.position}</div></div>`;
@@ -89,14 +91,17 @@ function getEmployeesList(data, e) {
 }
 
 //Таймер
-const timeForPersonDefault = 300000; //5 минут на сотрудника
+
 function getTotalTime(json, number) {
   const numberOfEmployees = json.teams[number].colleagues.length;
-  //console.log(teamNumber);
-  return timeForPersonDefault * numberOfEmployees;
+  console.log(number);
+  return (timeForPersonDefault * numberOfEmployees) / 60000;
 }
-function showTotalTime(json) {
+function showTotalTime(json, teamNumber) {
   let container = document.querySelector("h2");
-  container.innerText += getTotalTime(json, 1);
+  container.innerHTML = ``;
+  container.innerHTML += `Запланированное время встречи: ${getTotalTime(
+    json,
+    teamNumber
+  )} мин.`;
 }
-window.addEventListener("load", () => showTotalTime(jsonData));

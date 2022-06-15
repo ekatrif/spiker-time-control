@@ -103,6 +103,12 @@ section {
 }
 
 .select-team__item {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #3e4958;
   position: relative;
 }
 
