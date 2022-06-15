@@ -55,13 +55,48 @@ function getEmployeesList(data, e) {
 
   for (let i = 0; i < data.teams.length; i++) {
     if (e.target.textContent === data.teams[i].orgName) {
+      //Сохраняем номер выбранной команды
+
       e.target.classList.add("select-team__item_active");
+      //Отображаем данные тимлида
       employeesList.innerHTML += `<div class="employees__teamlead"><div class="employees__teamlead__name">${data.teams[i].teamlead.fullName}</div><div class="employees__teamlead__position">${data.teams[i].teamlead.position}</div></div>`;
-      employeesList.innerHTML += `<div class="employees__list">`;
+
+      //Создаем контейнер для заголовка и списка сотрудников
+      let divEmployeesList = document.createElement("div");
+      divEmployeesList.setAttribute("class", "employees__list");
+      employeesList.insertAdjacentElement("beforeend", divEmployeesList);
+      let employeesListContainer =
+        employeesList.querySelector(".employees__list");
+      //Отображаем заголовок Команда
+      employeesListContainer.innerHTML += `<div class="employees__list__title">Команда:</div>`;
+
+      //Контейнер для списка сотрудников
+      let divEmployeeslistBody = document.createElement("div");
+      divEmployeeslistBody.setAttribute("class", "employees__list__body");
+      employeesListContainer.insertAdjacentElement(
+        "beforeend",
+        divEmployeeslistBody
+      );
+      let employeesListBodyContainer = employeesList.querySelector(
+        ".employees__list__body"
+      );
+      //Выводим сотрудников команды
       for (let j = 0; j < data.teams[i].colleagues.length; j++) {
-        employeesList.innerHTML += `<div class="employees__list__item">${data.teams[i].colleagues[j].fullName}</div`;
+        employeesListBodyContainer.innerHTML += `<div class="employees__list__body__item">${data.teams[i].colleagues[j].fullName}</div`;
       }
-      employeesList.innerHTML += `<div class="employees__list">`;
     }
   }
 }
+
+//Таймер
+const timeForPersonDefault = 300000; //5 минут на сотрудника
+function getTotalTime(json, number) {
+  const numberOfEmployees = json.teams[number].colleagues.length;
+  //console.log(teamNumber);
+  return timeForPersonDefault * numberOfEmployees;
+}
+function showTotalTime(json) {
+  let container = document.querySelector("h2");
+  container.innerText += getTotalTime(json, 1);
+}
+window.addEventListener("load", () => showTotalTime(jsonData));
