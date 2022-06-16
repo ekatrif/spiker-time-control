@@ -141,6 +141,9 @@ section {
       cursor: pointer;
       position: relative;
     }
+    &__item_active {
+      color: #1152fd;
+    }
     &__item:hover {
       color: #1152fd;
     }
@@ -156,5 +159,123 @@ section {
     &__item_active {
       color: #1152fd;
     }
+  }
+}
+
+.timer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 430px;
+  height: 312px;
+  padding: 18px 23px 60px 23px;
+  background: #f9f9f9;
+  border-radius: 4px;
+
+  &:after {
+    position: absolute;
+    content: "";
+    height: 8px;
+    width: 100%;
+    background-color: #1152fd;
+    bottom: 0px;
+    left: 0px;
+  }
+
+  &__title {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #3e4958;
+  }
+
+  &__time {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+
+    margin-top: 35px;
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 44px;
+  }
+}
+.time {
+  &__mins {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    &__body {
+      width: 110px;
+      height: 60px;
+
+      background: #ffffff;
+      border: 1px solid #dbdbdb;
+      border-radius: 4px;
+
+      font-family: "Roboto";
+      font-style: normal;
+      font-weight: 400;
+      font-size: 42px;
+      line-height: 1.5;
+
+      color: #000000;
+      text-align: center;
+    }
+    &__title {
+      font-family: "Roboto";
+      font-style: normal;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #000000;
+    }
+  }
+}
+.button {
+  display: flex;
+  width: 118px;
+  height: 40px;
+
+  border-radius: 3px;
+
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #ffffff;
+  text-transform: uppercase;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  &_start {
+    background: #1152fd;
+    border: 1px solid #1152fd;
+  }
+
+  &_pause {
+    background: #d1d1d1;
+    border: 1px solid #d1d1d1;
+  }
+
+  &_reset {
+    background: #fd6259;
+    border: 1px solid #fd6259;
   }
 }

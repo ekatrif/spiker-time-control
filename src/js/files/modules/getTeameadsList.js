@@ -10,7 +10,9 @@ let jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json";
 
 inputSelectGroup.innerHTML = "<input  type='text' placeholder='Выбор группы'/>";
 
-const timeForPersonDefault = 300000; //5 минут на сотрудника
+const timeForPersonDefault = 1 * 60000; //5 минут на сотрудника
+const minsDefault = Math.floor(timeForPersonDefault / 60000);
+const secsDefault = (timeForPersonDefault - minsDefault * 60000) / 1000;
 
 //Получаем данные о командах и сразу записываем их в переменную
 let jsonData;
@@ -75,6 +77,7 @@ function getEmployeesList(data, e) {
       //Контейнер для списка сотрудников
       let divEmployeeslistBody = document.createElement("div");
       divEmployeeslistBody.setAttribute("class", "employees__list__body");
+      divEmployeeslistBody.setAttribute("id", "employees");
       employeesListContainer.insertAdjacentElement(
         "beforeend",
         divEmployeeslistBody
@@ -88,10 +91,11 @@ function getEmployeesList(data, e) {
       }
     }
   }
+  manageEmployees();
 }
 
 //Таймер
-
+//Расчет запланированного времени выступление всех спикеров группы
 function getTotalTime(json, number) {
   const numberOfEmployees = json.teams[number].colleagues.length;
   console.log(number);
@@ -104,4 +108,88 @@ function showTotalTime(json, teamNumber) {
     json,
     teamNumber
   )} мин.`;
+}
+
+function manageEmployees() {
+  let employeesContainer = document.getElementById("employees");
+  console.log(employeesContainer);
+  employeesContainer.addEventListener("click", addTimer);
+  function addTimer(e) {
+    if (e.target.classList.contains("employees__list__body__item")) {
+      addActiveClass(e);
+      showTimer();
+    }
+  }
+}
+function addActiveClass(e) {
+  let employees = document.querySelectorAll(".employees__list__body__item");
+  for (let item of [...employees]) {
+    item.classList.remove("employees__list__body__item_active");
+  }
+
+  e.target.classList.add("employees__list__body__item_active");
+}
+
+function showTimer() {
+  //Вывод таймера
+  let timer = document.getElementById("timer");
+  let timerTemplate = `<div class="timer"><div class="timer__title">Таймер</div> <div class="timer__time time"><div class="time__container"><div id="mins" class="time__container__body">${minsDefault}</div><div class="time__container__title">Минут</div></div><div class="time__container"><div id="secs" class="time__container__body">${secsDefault}</div><div class="time__container__title">Секунд</div></div></div><div class="timer__buttons"><div id="start" class="button button_start">Старт</div><div id="pause" class="button button_pause">Пауза</div><div id="reset" class="button button_reset">Сброс</div></div></div>`;
+  timer.innerHTML = timerTemplate;
+  let activeUser = document.querySelector(
+    ".employees__list__body__item_active"
+  ).textContent;
+  console.log(activeUser);
+  let isSaved = false;
+  let isPaused = true;
+
+  // document.getElementById("start").addEventListener("click", function () {
+  let timeToEnd;
+
+  let timerId = window.setInterval(function () {
+    if (!isPaused) {
+      let mins = Math.floor(timeToEnd / 60000);
+      let secs = (timeToEnd - mins * 60000) / 1000;
+      document.getElementById("mins").innerText = mins;
+      document.getElementById("secs").innerText = secs;
+
+      timeToEnd -= 1000;
+      if (timeToEnd < 0) {
+        setTimeout(() => {
+          clearInterval(timerId);
+          timer.innerHTML = `Время истекло`;
+        });
+      }
+    }
+  }, 1000);
+  // });
+
+  document.getElementById("pause").addEventListener("click", function () {
+    isPaused = true;
+    console.log(isPaused, "Пауза");
+    let activeUser = document.querySelector(
+      ".employees__list__body__item_active"
+    ).innerText;
+    console.log(activeUser);
+    localStorage.setItem(`${activeUser}`, timeToEnd);
+    isSaved = true;
+  });
+  //Продолжить
+  document.getElementById("start").addEventListener("click", function () {
+    isPaused = false;
+
+    if (isSaved) {
+      timeToEnd = localStorage.getItem(activeUser);
+      console.log("after save", timeToEnd);
+    } else {
+      timeToEnd = timeForPersonDefault;
+      console.log(isPaused, "Продолжить");
+    }
+  });
+  //Сброс
+  document.getElementById("reset").addEventListener("click", function () {
+    isSaved = false;
+    console.log("Сброс");
+    document.getElementById("mins").innerText = minsDefault;
+    document.getElementById("secs").innerText = secsDefault;
+  });
 }
