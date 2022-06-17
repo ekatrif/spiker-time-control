@@ -13,7 +13,6 @@ inputSelectGroup.innerHTML = "<input  type='text' placeholder='Выбор гру
 const timeForPersonDefault = 1 * 60000; //5 минут на сотрудника
 const minsDefault = Math.floor(timeForPersonDefault / 60000);
 const secsDefault = (timeForPersonDefault - minsDefault * 60000) / 1000;
-
 //Получаем данные о командах и сразу записываем их в переменную
 let jsonData;
 async function getJson(url) {
@@ -98,7 +97,7 @@ function getEmployeesList(data, e) {
 //Расчет запланированного времени выступление всех спикеров группы
 function getTotalTime(json, number) {
   const numberOfEmployees = json.teams[number].colleagues.length;
-  console.log(number);
+  //console.log(number);
   return (timeForPersonDefault * numberOfEmployees) / 60000;
 }
 function showTotalTime(json, teamNumber) {
@@ -117,7 +116,7 @@ function manageEmployees() {
   function addTimer(e) {
     if (e.target.classList.contains("employees__list__body__item")) {
       addActiveClass(e);
-      showTimer();
+      showTimer(e);
     }
   }
 }
@@ -130,20 +129,35 @@ function addActiveClass(e) {
   e.target.classList.add("employees__list__body__item_active");
 }
 
-function showTimer() {
-  //Вывод таймера
-  let timer = document.getElementById("timer");
-  let timerTemplate = `<div class="timer"><div class="timer__title">Таймер</div> <div class="timer__time time"><div class="time__container"><div id="mins" class="time__container__body">${minsDefault}</div><div class="time__container__title">Минут</div></div><div class="time__container"><div id="secs" class="time__container__body">${secsDefault}</div><div class="time__container__title">Секунд</div></div></div><div class="timer__buttons"><div id="start" class="button button_start">Старт</div><div id="pause" class="button button_pause">Пауза</div><div id="reset" class="button button_reset">Сброс</div></div></div>`;
-  timer.innerHTML = timerTemplate;
+//Вывод таймера
+function showTimer(e) {
   let activeUser = document.querySelector(
     ".employees__list__body__item_active"
   ).textContent;
-  console.log(activeUser);
+  let timeToEnd;
+  let mins;
+  let secs;
+
+  if (
+    localStorage.getItem(activeUser) &&
+    localStorage.getItem(activeUser) > 0
+  ) {
+    timeToEnd = localStorage.getItem(activeUser);
+    console.log("есть сохраненное время");
+  } else {
+    timeToEnd = timeForPersonDefault;
+    console.log("нет сохраненного времени");
+  }
+  mins = Math.floor(timeToEnd / 60000);
+  secs = (timeToEnd - mins * 60000) / 1000;
+  let timer = document.getElementById("timer");
+  let timerTemplate = `<div class="timer"><div class="timer__title">Таймер</div> <div class="timer__time time"><div class="time__container"><div id="mins" class="time__container__body">${mins}</div><div class="time__container__title">Минут</div></div><div class="time__container"><div id="secs" class="time__container__body">${secs}</div><div class="time__container__title">Секунд</div></div></div><div class="timer__buttons"><div id="start" class="button button__start">Старт</div><div id="pause" class="button button__pause">Пауза</div><div id="reset" class="button button__reset">Сброс</div></div></div>`;
+  timer.innerHTML = timerTemplate;
+
+  // console.log(activeUser);
+
   let isSaved = false;
   let isPaused = true;
-
-  // document.getElementById("start").addEventListener("click", function () {
-  let timeToEnd;
 
   let timerId = window.setInterval(function () {
     if (!isPaused) {
@@ -163,33 +177,72 @@ function showTimer() {
   }, 1000);
   // });
 
-  document.getElementById("pause").addEventListener("click", function () {
-    isPaused = true;
-    console.log(isPaused, "Пауза");
-    let activeUser = document.querySelector(
-      ".employees__list__body__item_active"
-    ).innerText;
-    console.log(activeUser);
-    localStorage.setItem(`${activeUser}`, timeToEnd);
-    isSaved = true;
-  });
-  //Продолжить
-  document.getElementById("start").addEventListener("click", function () {
-    isPaused = false;
+  //Пауза
+  pauseTimer();
+  function pauseTimer() {
+    document.getElementById("pause").addEventListener("click", function () {
+      document
+        .getElementById("start")
+        .classList.remove("button__start_disable");
+      document.getElementById("pause").classList.add("button__pause_disable");
+      isPaused = true;
+      console.log(isPaused, "Пауза");
 
-    if (isSaved) {
-      timeToEnd = localStorage.getItem(activeUser);
-      console.log("after save", timeToEnd);
-    } else {
-      timeToEnd = timeForPersonDefault;
-      console.log(isPaused, "Продолжить");
-    }
-  });
+      localStorage.setItem(`${activeUser}`, timeToEnd);
+      isSaved = true;
+      //Показываем всех спикеров - избавить от дублирования переменных!!!
+
+      let employees = document.querySelectorAll(".employees__list__body__item");
+      for (let item of [...employees]) {
+        item.setAttribute("style", "display:block");
+      }
+      /////
+    });
+  }
+
+  //Продолжить
+  startTimer(e);
+  function startTimer(e) {
+    document.getElementById("start").addEventListener("click", function () {
+      //Скрываем всех спикеров кроме выранного
+      let employees = document.querySelectorAll(".employees__list__body__item");
+      for (let item of [...employees]) {
+        if (e.target.textContent !== item.textContent) {
+          item.setAttribute("style", "display:none");
+        }
+      }
+      /////
+      isPaused = false;
+      document.getElementById("start").classList.add("button__start_disable");
+      document
+        .getElementById("pause")
+        .classList.remove("button__pause_disable");
+      if (isSaved) {
+        timeToEnd = localStorage.getItem(activeUser);
+        console.log("after save", timeToEnd);
+      } else {
+        timeToEnd = timeForPersonDefault;
+        console.log(isPaused, "Продолжить");
+      }
+    });
+  }
+
   //Сброс
-  document.getElementById("reset").addEventListener("click", function () {
-    isSaved = false;
-    console.log("Сброс");
-    document.getElementById("mins").innerText = minsDefault;
-    document.getElementById("secs").innerText = secsDefault;
-  });
+  reset();
+  function reset() {
+    document.getElementById("reset").addEventListener("click", function () {
+      document
+        .getElementById("start")
+        .classList.remove("button__start_disable");
+      document
+        .getElementById("pause")
+        .classList.remove("button__pause_disable");
+      isPaused = true;
+      isSaved = false;
+      console.log("Сброс");
+      document.getElementById("mins").innerText = minsDefault;
+      document.getElementById("secs").innerText = secsDefault;
+      localStorage.setItem(`${activeUser}`, 0);
+    });
+  }
 }

@@ -352,18 +352,40 @@ section {
   cursor: pointer;
 }
 
-.button_start {
+.button__start {
   background: #1152fd;
   border: 1px solid #1152fd;
 }
 
-.button_pause {
-  background: #d1d1d1;
-  border: 1px solid #d1d1d1;
+.button__start:hover {
+  opacity: 0.5;
 }
 
-.button_reset {
+.button__start_disable {
+  opacity: 0.5;
+}
+
+.button__pause {
+  border: 1px solid #d1d1d1;
+  color: #323232;
+}
+
+.button__pause:hover {
+  background: #d1d1d1;
+  color: #ffffff;
+}
+
+.button__pause_disable {
+  background: #d1d1d1;
+  color: #ffffff;
+}
+
+.button__reset {
   background: #fd6259;
   border: 1px solid #fd6259;
+}
+
+.button__reset:hover {
+  opacity: 0.5;
 }
 /*# sourceMappingURL=common.css.map */

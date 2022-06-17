@@ -1,4 +1,5 @@
 // Заголовки, общие БЄМ блоки и проче...
+
 .wrapper {
   margin-left: 20px;
   margin-right: 20px;
@@ -264,18 +265,38 @@ section {
   align-items: center;
   cursor: pointer;
 
-  &_start {
+  &__start {
     background: #1152fd;
     border: 1px solid #1152fd;
   }
 
-  &_pause {
-    background: #d1d1d1;
-    border: 1px solid #d1d1d1;
+  &__start:hover {
+    opacity: 0.5;
   }
 
-  &_reset {
+  &__start_disable {
+    opacity: 0.5;
+  }
+  &__pause {
+    border: 1px solid #d1d1d1;
+    color: #323232;
+  }
+  &__pause:hover {
+    background: #d1d1d1;
+    color: #ffffff;
+  }
+
+  &__pause_disable {
+    //background: #d1d1d1;
+    background: #d1d1d1;
+    color: #ffffff;
+  }
+
+  &__reset {
     background: #fd6259;
     border: 1px solid #fd6259;
+  }
+  &__reset:hover {
+    opacity: 0.5;
   }
 }
