@@ -11,6 +11,25 @@ const minsDefault = Math.floor(timeForPersonDefaultMsec / 60000); //выделя
 const secsDefault = (timeForPersonDefaultMsec - minsDefault * 60000) / 1000; //выделяем секунды
 
 ///////////Блок функций
+//Получаем данные о командах и сразу записываем их в переменную
+let jsonData;
+async function getJson(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Код ответа сервера не 200-299.");
+    } else {
+      jsonData = await response.json();
+      //Выводим список команд
+      getTeamList(jsonData);
+    }
+  } catch (error) {
+    teamList.innerHTML = "Данные не получены :(";
+    if (error.message === "Код ответа сервера не 200-299.") {
+      throw error;
+    } else throw new Error("Данные не получены");
+  }
+}
 
 //Вывод списка команд
 function getTeamList(data) {
@@ -216,6 +235,7 @@ function getCorrectForm(number) {
 }
 
 ///////////Блок функций
+
 //По клику загружаем данные с сервера
 let inputSelectGroup = document.getElementById("select-team");
 inputSelectGroup.innerHTML = "<input  type='text' placeholder='Выбор группы'/>";
@@ -275,12 +295,24 @@ function getEmployeesList(data, e) {
 }
 
 //Настройки
+//По умолчанию блок с настройками скрыт
+document.getElementById("popup").setAttribute("style", "display:none");
+
+//По клику показываем/скрываем блок с настройками
 document.getElementById("settings-icon").addEventListener("click", function () {
   if (
     document.getElementById("popup").getAttribute("style") === "display:flex"
   ) {
-    document.getElementById("popup").setAttribute("style", "display:none");
+    document.getElementById("popup").classList.toggle("popup_visible");
+    document.getElementById("popup").classList.toggle("popup_hidden");
+    setTimeout(function () {
+      document.getElementById("popup").setAttribute("style", "display:none");
+    }, 500);
   } else {
     document.getElementById("popup").setAttribute("style", "display:flex");
+    setTimeout(function () {
+      document.getElementById("popup").classList.toggle("popup_hidden");
+      document.getElementById("popup").classList.toggle("popup_visible");
+    }, 0);
   }
 });
