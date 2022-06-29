@@ -116,7 +116,7 @@ h1 {
     color: #ffffff;
     text-transform: uppercase;
 
-    &_save {
+    &__ok {
       display: flex;
       width: 118px;
       height: 40px;
@@ -127,11 +127,11 @@ h1 {
       align-items: center;
       cursor: pointer;
     }
-    &__save:hover {
+    &__ok:hover {
       opacity: 0.5;
     }
 
-    &_cancel {
+    &__cancel {
       display: flex;
       width: 118px;
       height: 40px;
@@ -142,7 +142,7 @@ h1 {
       align-items: center;
       cursor: pointer;
     }
-    &__reset:hover {
+    &__cancel:hover {
       opacity: 0.5;
     }
   }

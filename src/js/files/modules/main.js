@@ -3,14 +3,18 @@ let employeesList = document.getElementById("employeesList");
 let teamList = document.getElementById("team-list");
 
 const jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json"; //url json с данными о командах
-const timeForPersonDefaultSec = 5; //время на выступление 1 сотрудника, сек
-const timeForPersonDefaultMsec = timeForPersonDefaultSec * 60000; //время на выступление 1 сотрудника, мсек
+const timeForPersonDefaultMin = 5; //время на выступление 1 сотрудника, мин
+const timeForPersonDefaultMsec = minsToMsecs(timeForPersonDefaultMin); //время на выступление 1 сотрудника, мсек
 const timeAlarmSec = 30; //за сколько cекунд до конца времени показать предупреждение
 const timeAlarmMsec = timeAlarmSec * 1000; //перевод в миллисекунды
 const minsDefault = Math.floor(timeForPersonDefaultMsec / 60000); //выделяем минуты
 const secsDefault = (timeForPersonDefaultMsec - minsDefault * 60000) / 1000; //выделяем секунды
 
 ///////////Блок функций
+//Перевод минут в миллисекунды
+function minsToMsecs(number) {
+  return number * 60000;
+}
 //Получаем данные о командах и сразу записываем их в переменную
 let jsonData;
 async function getJson(url) {
@@ -102,7 +106,11 @@ function showTimer(e) {
   ) {
     timeToEnd = localStorage.getItem(activeUser); //Получаем данные об оставшемся времени
   } else {
-    timeToEnd = timeForPersonDefaultMsec; //Берем время из настроек
+    if (localStorage.getItem("timeForPersonSaved")) {
+      timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); //Берем время из сохраненных настроек
+    } else {
+      timeToEnd = timeForPersonDefaultMsec; //Берем время по умолчанию
+    }
   }
   mins = Math.floor(timeToEnd / 60000);
   secs = (timeToEnd - mins * 60000) / 1000;
@@ -186,7 +194,11 @@ function showTimer(e) {
     }
     //Иначе отсчитываем от времени из настроек
     else {
-      timeToEnd = timeForPersonDefaultMsec;
+      if (localStorage.getItem("timeForPersonSaved")) {
+        timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); //Берем время из сохраненных настроек
+      } else {
+        timeToEnd = timeForPersonDefaultMsec; //Берем время по умолчанию
+      }
     }
   });
 
@@ -197,8 +209,19 @@ function showTimer(e) {
     document.getElementById("start").classList.remove("button__start_disable");
     document.getElementById("pause").classList.remove("button__pause_disable");
     isPaused = true;
-    document.getElementById("mins").innerText = minsDefault;
-    document.getElementById("secs").innerText = secsDefault;
+    //Выводим сброшенные минуты и секунды таймера, используем либо время по умолчанию, либо сохраненное в настройках
+    if (localStorage.getItem("timeForPersonSaved")) {
+      let savedTimeMins = localStorage.getItem("timeForPersonSaved");
+      let mins = Math.floor(minsToMsecs(savedTimeMins) / 60000);
+      document.getElementById("mins").innerText = mins;
+      document.getElementById("secs").innerText =
+        (minsToMsecs(savedTimeMins) - mins * 60000) / 1000;
+    } else {
+      document.getElementById("mins").innerText = minsDefault;
+      document.getElementById("secs").innerText = secsDefault;
+      ию;
+    }
+    //Выводим слови "минут", "секунд" в правильной форме
     document.getElementById("minsForm").innerText = `Минут${getCorrectForm(
       minsDefault
     )}`;
@@ -313,6 +336,35 @@ document.getElementById("settings-icon").addEventListener("click", function () {
     setTimeout(function () {
       document.getElementById("popup").classList.toggle("popup_hidden");
       document.getElementById("popup").classList.toggle("popup_visible");
-    }, 0);
+    }, 500);
   }
+});
+
+//Вставляем значение по умолчанию
+let input = document.getElementById("time-for-person");
+if (localStorage.getItem("timeForPersonSaved")) {
+  input.setAttribute("placeholder", localStorage.getItem("timeForPersonSaved"));
+} else {
+  input.setAttribute("placeholder", timeForPersonDefaultMin);
+}
+
+//Кнопка OK
+document.getElementById("button-ok").addEventListener("click", function () {
+  //Сохраняем настройки
+  localStorage.setItem("timeForPersonSaved", input.value);
+  //Закрываем окно настроек
+  document.getElementById("popup").classList.toggle("popup_visible");
+  document.getElementById("popup").classList.toggle("popup_hidden");
+  setTimeout(function () {
+    document.getElementById("popup").setAttribute("style", "display:none");
+  }, 500);
+});
+//Кнопка Cancel
+document.getElementById("button-cancel").addEventListener("click", function () {
+  //Закрываем окно настроек
+  document.getElementById("popup").classList.toggle("popup_visible");
+  document.getElementById("popup").classList.toggle("popup_hidden");
+  setTimeout(function () {
+    document.getElementById("popup").setAttribute("style", "display:none");
+  }, 500);
 });
