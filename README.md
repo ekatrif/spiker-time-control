@@ -1,6 +1,6 @@
 # Пет-проект "Приложение для контроля времени выступления группы разработчиков".
 
-Ссылка на приложение: https://github.com/ekatrif/spiker-time-control/dist
+Ссылка на приложение: https://ekatrif.github.io/spiker-time-control/dist/
 
 ## Краткое описание работы приложения
 
