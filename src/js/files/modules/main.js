@@ -1,7 +1,3 @@
-let employeesList = document.getElementById("employeesList");
-
-let teamList = document.getElementById("team-list");
-
 const jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json"; //url json с данными о командах
 const timeForPersonDefaultMin = 5; //время на выступление 1 сотрудника, мин
 const timeForPersonDefaultMsec = minsToMsecs(timeForPersonDefaultMin); //время на выступление 1 сотрудника, мсек
@@ -9,6 +5,7 @@ const timeAlarmSec = 30; //за сколько cекунд до конца вр�
 const timeAlarmMsec = timeAlarmSec * 1000; //перевод в миллисекунды
 const minsDefault = Math.floor(timeForPersonDefaultMsec / 60000); //выделяем минуты
 const secsDefault = (timeForPersonDefaultMsec - minsDefault * 60000) / 1000; //выделяем секунды
+const plugText = "Нажмите на Паузу, чтобы выбрать другого спикера";
 
 ///////////Блок функций
 //Перевод минут в миллисекунды
@@ -57,37 +54,6 @@ function addActiveClass(e) {
   e.target.classList.add("employees__list__body__item_active");
 }
 
-//Показываем списки команд и сотрудников
-function showTeamsAndEmployees() {
-  //Показываем сотрудников
-  let employees = document.querySelectorAll(".employees__list__body__item");
-  for (let item of [...employees]) {
-    item.setAttribute("style", "display:block");
-  }
-  //Показываем команды
-  let teams = document.querySelectorAll(".select-team__item");
-  for (let item of [...teams]) {
-    item.setAttribute("style", "display:block");
-  }
-}
-//Скрываем команды
-function hideTeams() {
-  let teams = document.querySelectorAll(".select-team__item");
-  for (let item of [...teams]) {
-    if (!item.classList.contains("select-team__item_active")) {
-      item.setAttribute("style", "display:none");
-    }
-  }
-}
-//Скрываем всех спикеров кроме выбранного
-function hideEmployees(e) {
-  let employees = document.querySelectorAll(".employees__list__body__item");
-  for (let item of [...employees]) {
-    if (e.target.textContent !== item.textContent) {
-      item.setAttribute("style", "display:none");
-    }
-  }
-}
 //Вывод таймера
 function showTimer(e) {
   let activeUser = document.querySelector(
@@ -133,6 +99,7 @@ function showTimer(e) {
       document.getElementById("secs").innerText = secs;
       document.getElementById("minsForm").innerText = `Минут${minsForm}`;
       document.getElementById("secsForm").innerText = `Секунд${secsForm}`;
+
       //Если время подходит к концу, показывается предупреждение
       if (timeToEnd <= timeAlarmMsec) {
         document.getElementById("timer-message").innerText =
@@ -163,6 +130,14 @@ function showTimer(e) {
 
   //Пауза таймера
   document.getElementById("pause").addEventListener("click", function () {
+    //Убираем заглушку на команды и членов команд, чтобы не ломать таймер
+    let sections = document.getElementsByTagName("section");
+    for (let i = 0; i < [...sections].length - 1; i++) {
+      sections[i].classList.toggle("plug");
+      //Убираем подсказку
+      sections[i].removeAttribute("data-tooltip");
+    }
+
     //Меняем заголовок
     document.getElementById("employees-title").textContent = "Команда";
     document.getElementById("start").classList.remove("button__start_disable");
@@ -170,18 +145,18 @@ function showTimer(e) {
     isPaused = true;
     //Записываем текущее состояние таймера
     localStorage.setItem(`${activeUser}`, timeToEnd);
-    //Показываем команды и сотрудников
-    showTeamsAndEmployees();
   });
 
-  //Продолжить отсчет таймера (кнопка Старт)
+  //Начать/продолжить отсчет таймера (кнопка Старт)
   document.getElementById("start").addEventListener("click", function () {
-    //Меняем за головок на Спикер
-    document.getElementById("employees-title").textContent = "Спикер";
-    //Скрываем всех спикеров кроме выбранного
-    hideEmployees(e);
-    //Скрываем команды
-    hideTeams();
+    //Вешаем заглушку на команды и членов команд, чтобы не ломать таймер
+    let sections = document.getElementsByTagName("section");
+    for (let i = 0; i < [...sections].length - 1; i++) {
+      sections[i].classList.toggle("plug");
+      //Добавляем подсказку
+      sections[i].setAttribute("data-tooltip", plugText);
+    }
+
     isPaused = false;
     document.getElementById("start").classList.add("button__start_disable");
     document.getElementById("pause").classList.remove("button__pause_disable");
@@ -204,6 +179,14 @@ function showTimer(e) {
 
   //Сброс таймера
   document.getElementById("reset").addEventListener("click", function () {
+    //Убираем заглушку на команды и членов команд, чтобы не ломать таймер
+    let sections = document.getElementsByTagName("section");
+    for (let i = 0; i < [...sections].length - 1; i++) {
+      sections[i].classList.toggle("plug");
+      //Убираем подсказку
+      sections[i].removeAttribute("data-tooltip");
+    }
+
     //Меняем заголовок
     document.getElementById("employees-title").textContent = "Команда";
     document.getElementById("start").classList.remove("button__start_disable");
@@ -219,7 +202,6 @@ function showTimer(e) {
     } else {
       document.getElementById("mins").innerText = minsDefault;
       document.getElementById("secs").innerText = secsDefault;
-      ию;
     }
     //Выводим слови "минут", "секунд" в правильной форме
     document.getElementById("minsForm").innerText = `Минут${getCorrectForm(
@@ -237,8 +219,6 @@ function showTimer(e) {
       .getElementById("secs")
       .classList.remove("time__container__body_alarm");
     document.getElementById("timer-message").innerText = "Оставшееся время";
-    //Показываем всех спикеров и команды
-    showTeamsAndEmployees();
   });
 }
 
@@ -266,6 +246,9 @@ inputSelectGroup.addEventListener("click", function () {
   getJson(jsonUrl);
 });
 
+let employeesList = document.getElementById("employeesList");
+
+let teamList = document.getElementById("team-list");
 //По клику на команде выводим тимлида и список сотрудников
 teamList.addEventListener("click", (e) => getEmployeesList(jsonData, e));
 function getEmployeesList(data, e) {

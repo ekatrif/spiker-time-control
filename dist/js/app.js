@@ -22,8 +22,6 @@
             }));
         }
     }), 0);
-    let employeesList = document.getElementById("employeesList");
-    let teamList = document.getElementById("team-list");
     const jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json";
     const timeForPersonDefaultMin = 5;
     const timeForPersonDefaultMsec = minsToMsecs(timeForPersonDefaultMin);
@@ -31,6 +29,7 @@
     const timeAlarmMsec = 1e3 * timeAlarmSec;
     const minsDefault = Math.floor(timeForPersonDefaultMsec / 6e4);
     const secsDefault = (timeForPersonDefaultMsec - 6e4 * minsDefault) / 1e3;
+    const plugText = "Нажмите на Паузу, чтобы выбрать другого спикера";
     function minsToMsecs(number) {
         return 6e4 * number;
     }
@@ -55,20 +54,6 @@
         let employees = document.querySelectorAll(".employees__list__body__item");
         for (let item of [ ...employees ]) item.classList.remove("employees__list__body__item_active");
         e.target.classList.add("employees__list__body__item_active");
-    }
-    function showTeamsAndEmployees() {
-        let employees = document.querySelectorAll(".employees__list__body__item");
-        for (let item of [ ...employees ]) item.setAttribute("style", "display:block");
-        let teams = document.querySelectorAll(".select-team__item");
-        for (let item of [ ...teams ]) item.setAttribute("style", "display:block");
-    }
-    function hideTeams() {
-        let teams = document.querySelectorAll(".select-team__item");
-        for (let item of [ ...teams ]) if (!item.classList.contains("select-team__item_active")) item.setAttribute("style", "display:none");
-    }
-    function hideEmployees(e) {
-        let employees = document.querySelectorAll(".employees__list__body__item");
-        for (let item of [ ...employees ]) if (e.target.textContent !== item.textContent) item.setAttribute("style", "display:none");
     }
     function showTimer(e) {
         let activeUser = document.querySelector(".employees__list__body__item_active").textContent;
@@ -112,23 +97,34 @@
             }
         }), 1e3);
         document.getElementById("pause").addEventListener("click", (function() {
+            let sections = document.getElementsByTagName("section");
+            for (let i = 0; i < [ ...sections ].length - 1; i++) {
+                sections[i].classList.toggle("plug");
+                sections[i].removeAttribute("data-tooltip");
+            }
             document.getElementById("employees-title").textContent = "Команда";
             document.getElementById("start").classList.remove("button__start_disable");
             document.getElementById("pause").classList.add("button__pause_disable");
             isPaused = true;
             localStorage.setItem(`${activeUser}`, timeToEnd);
-            showTeamsAndEmployees();
         }));
         document.getElementById("start").addEventListener("click", (function() {
-            document.getElementById("employees-title").textContent = "Спикер";
-            hideEmployees(e);
-            hideTeams();
+            let sections = document.getElementsByTagName("section");
+            for (let i = 0; i < [ ...sections ].length - 1; i++) {
+                sections[i].classList.toggle("plug");
+                sections[i].setAttribute("data-tooltip", plugText);
+            }
             isPaused = false;
             document.getElementById("start").classList.add("button__start_disable");
             document.getElementById("pause").classList.remove("button__pause_disable");
             if (localStorage.getItem(activeUser) && localStorage.getItem(activeUser) > 0) timeToEnd = localStorage.getItem(activeUser); else if (localStorage.getItem("timeForPersonSaved")) timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); else timeToEnd = timeForPersonDefaultMsec;
         }));
         document.getElementById("reset").addEventListener("click", (function() {
+            let sections = document.getElementsByTagName("section");
+            for (let i = 0; i < [ ...sections ].length - 1; i++) {
+                sections[i].classList.toggle("plug");
+                sections[i].removeAttribute("data-tooltip");
+            }
             document.getElementById("employees-title").textContent = "Команда";
             document.getElementById("start").classList.remove("button__start_disable");
             document.getElementById("pause").classList.remove("button__pause_disable");
@@ -141,7 +137,6 @@
             } else {
                 document.getElementById("mins").innerText = minsDefault;
                 document.getElementById("secs").innerText = secsDefault;
-                ию;
             }
             document.getElementById("minsForm").innerText = `Минут${getCorrectForm(minsDefault)}`;
             document.getElementById("secsForm").innerText = `Секунд${getCorrectForm(secsDefault)}`;
@@ -149,7 +144,6 @@
             document.getElementById("mins").classList.remove("time__container__body_alarm");
             document.getElementById("secs").classList.remove("time__container__body_alarm");
             document.getElementById("timer-message").innerText = "Оставшееся время";
-            showTeamsAndEmployees();
         }));
     }
     function getCorrectForm(number) {
@@ -162,6 +156,8 @@
     inputSelectGroup.addEventListener("click", (function() {
         getJson(jsonUrl);
     }));
+    let employeesList = document.getElementById("employeesList");
+    let teamList = document.getElementById("team-list");
     teamList.addEventListener("click", (e => getEmployeesList(jsonData, e)));
     function getEmployeesList(data, e) {
         employeesList.innerHTML = ``;
