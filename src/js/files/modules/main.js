@@ -135,7 +135,7 @@ function showTimer(e) {
     for (let i = 0; i < [...sections].length - 1; i++) {
       sections[i].classList.toggle("plug");
       //Убираем подсказку
-      sections[i].removeAttribute("data-tooltip");
+      document.getElementsByTagName("main")[0].removeAttribute("data-tooltip");
     }
 
     //Меняем заголовок
@@ -153,10 +153,11 @@ function showTimer(e) {
     let sections = document.getElementsByTagName("section");
     for (let i = 0; i < [...sections].length - 1; i++) {
       sections[i].classList.toggle("plug");
-      //Добавляем подсказку
-      sections[i].setAttribute("data-tooltip", plugText);
     }
-
+    //Добавляем подсказку
+    document
+      .getElementsByTagName("main")[0]
+      .setAttribute("data-tooltip", plugText);
     isPaused = false;
     document.getElementById("start").classList.add("button__start_disable");
     document.getElementById("pause").classList.remove("button__pause_disable");
@@ -184,7 +185,7 @@ function showTimer(e) {
     for (let i = 0; i < [...sections].length - 1; i++) {
       sections[i].classList.toggle("plug");
       //Убираем подсказку
-      sections[i].removeAttribute("data-tooltip");
+      document.getElementsByTagName("main")[0].removeAttribute("data-tooltip");
     }
 
     //Меняем заголовок

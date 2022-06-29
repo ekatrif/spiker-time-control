@@ -100,7 +100,7 @@
             let sections = document.getElementsByTagName("section");
             for (let i = 0; i < [ ...sections ].length - 1; i++) {
                 sections[i].classList.toggle("plug");
-                sections[i].removeAttribute("data-tooltip");
+                document.getElementsByTagName("main")[0].removeAttribute("data-tooltip");
             }
             document.getElementById("employees-title").textContent = "Команда";
             document.getElementById("start").classList.remove("button__start_disable");
@@ -110,10 +110,8 @@
         }));
         document.getElementById("start").addEventListener("click", (function() {
             let sections = document.getElementsByTagName("section");
-            for (let i = 0; i < [ ...sections ].length - 1; i++) {
-                sections[i].classList.toggle("plug");
-                sections[i].setAttribute("data-tooltip", plugText);
-            }
+            for (let i = 0; i < [ ...sections ].length - 1; i++) sections[i].classList.toggle("plug");
+            document.getElementsByTagName("main")[0].setAttribute("data-tooltip", plugText);
             isPaused = false;
             document.getElementById("start").classList.add("button__start_disable");
             document.getElementById("pause").classList.remove("button__pause_disable");
@@ -123,7 +121,7 @@
             let sections = document.getElementsByTagName("section");
             for (let i = 0; i < [ ...sections ].length - 1; i++) {
                 sections[i].classList.toggle("plug");
-                sections[i].removeAttribute("data-tooltip");
+                document.getElementsByTagName("main")[0].removeAttribute("data-tooltip");
             }
             document.getElementById("employees-title").textContent = "Команда";
             document.getElementById("start").classList.remove("button__start_disable");
