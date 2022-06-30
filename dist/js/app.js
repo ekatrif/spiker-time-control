@@ -22,16 +22,40 @@
             }));
         }
     }), 0);
-    const jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json";
-    let timeForPersonDefaultMin = 5;
-    const timeForPersonDefaultMsec = minsToMsecs(timeForPersonDefaultMin);
-    const timeAlarmSec = 30;
-    const timeAlarmMsec = 1e3 * timeAlarmSec;
-    const minsDefault = Math.floor(timeForPersonDefaultMsec / 6e4);
-    const secsDefault = (timeForPersonDefaultMsec - 6e4 * minsDefault) / 1e3;
-    const plugText = "Нажмите на Паузу, чтобы выбрать другого спикера";
-    function minsToMsecs(number) {
-        return 6e4 * number;
+    function manageSettings() {
+        document.getElementById("popup").setAttribute("style", "display:none");
+        document.getElementById("settings-icon").addEventListener("click", (function() {
+            if ("display:flex" === document.getElementById("popup").getAttribute("style")) {
+                document.getElementById("popup").classList.toggle("popup_visible");
+                document.getElementById("popup").classList.toggle("popup_hidden");
+                setTimeout((function() {
+                    document.getElementById("popup").setAttribute("style", "display:none");
+                }), 500);
+            } else {
+                document.getElementById("popup").setAttribute("style", "display:flex");
+                setTimeout((function() {
+                    document.getElementById("popup").classList.toggle("popup_hidden");
+                    document.getElementById("popup").classList.toggle("popup_visible");
+                }), 500);
+            }
+        }));
+        let input = document.getElementById("time-for-person");
+        if (localStorage.getItem("timeForPersonSaved")) input.setAttribute("placeholder", localStorage.getItem("timeForPersonSaved")); else input.setAttribute("placeholder", timeForPersonDefaultMin);
+        document.getElementById("button-ok").addEventListener("click", (function() {
+            localStorage.setItem("timeForPersonSaved", input.value);
+            document.getElementById("popup").classList.toggle("popup_visible");
+            document.getElementById("popup").classList.toggle("popup_hidden");
+            setTimeout((function() {
+                document.getElementById("popup").setAttribute("style", "display:none");
+            }), 500);
+        }));
+        document.getElementById("button-cancel").addEventListener("click", (function() {
+            document.getElementById("popup").classList.toggle("popup_visible");
+            document.getElementById("popup").classList.toggle("popup_hidden");
+            setTimeout((function() {
+                document.getElementById("popup").setAttribute("style", "display:none");
+            }), 500);
+        }));
     }
     let jsonData;
     async function getJson(url) {
@@ -39,21 +63,26 @@
             let response = await fetch(url);
             if (!response.ok) throw new Error("Код ответа сервера не 200-299."); else {
                 jsonData = await response.json();
-                getTeamList(jsonData);
+                teamList.innerHTML = ``;
+                if (jsonData.teams.length) for (let i = 0; i < jsonData.teams.length; i++) teamList.innerHTML += `<div class="select-team__item">${jsonData.teams[i].orgName}</div`; else teamList.innerHTML = "Что-то пошло не так :(";
             }
         } catch (error) {
             teamList.innerHTML = "Данные не получены :(";
-            if ("Код ответа сервера не 200-299." === error.message) throw error; else throw new Error("Данные не получены");
+            if ("Код ответа сервера не 200-299." === error.message) throw error; else throw new Error(error);
         }
     }
-    function getTeamList(data) {
-        teamList.innerHTML = ``;
-        if (data.teams.length) for (let i = 0; i < data.teams.length; i++) teamList.innerHTML += `<div class="select-team__item">${data.teams[i].orgName}</div`; else teamList.innerHTML = "Данные не получены :(";
+    function minsToMsecs(number) {
+        return 6e4 * number;
     }
     function addActiveClass(e) {
         let employees = document.querySelectorAll(".employees__list__body__item");
         for (let item of [ ...employees ]) item.classList.remove("employees__list__body__item_active");
         e.target.classList.add("employees__list__body__item_active");
+    }
+    function getCorrectForm(number) {
+        let letter;
+        if (number >= 11 && number <= 14) letter = ""; else if (number % 10 === 1) letter = "а"; else if (number % 10 >= 2 && number % 10 <= 4) letter = "ы"; else letter = "";
+        return letter;
     }
     function showTimer(e) {
         let activeUser = document.querySelector(".employees__list__body__item_active").textContent;
@@ -153,79 +182,52 @@
             document.getElementById("timer-message").innerText = "Оставшееся время";
         }));
     }
-    function getCorrectForm(number) {
-        let letter;
-        if (number >= 11 && number <= 14) letter = ""; else if (number % 10 === 1) letter = "а"; else if (number % 10 >= 2 && number % 10 <= 4) letter = "ы"; else letter = "";
-        return letter;
+    function showTeamMembers() {
+        teamList.addEventListener("click", (e => getEmployeesList(jsonData, e)));
+        function getEmployeesList(data, e) {
+            employeesList.innerHTML = ``;
+            let teamleads = teamList.querySelectorAll(".select-team__item");
+            for (let item of [ ...teamleads ]) item.classList.remove("select-team__item_active");
+            for (let i = 0; i < data.teams.length; i++) if (e.target.textContent === data.teams[i].orgName) {
+                e.target.classList.add("select-team__item_active");
+                employeesList.innerHTML += `<div class="employees__teamlead"><div class="employees__teamlead__name">${data.teams[i].teamlead.fullName}</div><div class="employees__teamlead__position">${data.teams[i].teamlead.position}</div></div>`;
+                let divEmployeesList = document.createElement("div");
+                divEmployeesList.setAttribute("class", "employees__list");
+                employeesList.insertAdjacentElement("beforeend", divEmployeesList);
+                let employeesListContainer = employeesList.querySelector(".employees__list");
+                employeesListContainer.innerHTML += `<div id="employees-title" class="employees__list__title">Команда:</div>`;
+                let divEmployeeslistBody = document.createElement("div");
+                divEmployeeslistBody.setAttribute("class", "employees__list__body");
+                divEmployeeslistBody.setAttribute("id", "employees");
+                employeesListContainer.insertAdjacentElement("beforeend", divEmployeeslistBody);
+                let employeesListBodyContainer = employeesList.querySelector(".employees__list__body");
+                for (let j = 0; j < data.teams[i].colleagues.length; j++) employeesListBodyContainer.innerHTML += `<div class="employees__list__body__item">${data.teams[i].colleagues[j].fullName}</div`;
+            }
+            let employeesContainer = document.getElementById("employees");
+            employeesContainer.addEventListener("click", (function(e) {
+                if (e.target.classList.contains("employees__list__body__item")) {
+                    addActiveClass(e);
+                    showTimer(e);
+                }
+            }));
+        }
     }
+    const teamList = document.getElementById("team-list");
+    const timeForPersonDefaultMsec = minsToMsecs(main_timeForPersonDefaultMin);
+    const timeAlarmMsec = 1e3 * timeAlarmSec;
+    const minsDefault = Math.floor(timeForPersonDefaultMsec / 6e4);
+    const secsDefault = (timeForPersonDefaultMsec - 6e4 * minsDefault) / 1e3;
+    const plugText = "Нажмите на Паузу, чтобы выбрать другого спикера";
+    const jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json";
+    const main_timeForPersonDefaultMin = 5;
+    const timeAlarmSec = 30;
     let inputSelectGroup = document.getElementById("select-team");
     inputSelectGroup.innerHTML = "<input  type='text' placeholder='Выбор группы'/>";
     inputSelectGroup.addEventListener("click", (function() {
         getJson(jsonUrl);
     }));
-    let employeesList = document.getElementById("employeesList");
-    let teamList = document.getElementById("team-list");
-    teamList.addEventListener("click", (e => getEmployeesList(jsonData, e)));
-    function getEmployeesList(data, e) {
-        employeesList.innerHTML = ``;
-        let teamleads = teamList.querySelectorAll(".select-team__item");
-        for (let item of [ ...teamleads ]) item.classList.remove("select-team__item_active");
-        for (let i = 0; i < data.teams.length; i++) if (e.target.textContent === data.teams[i].orgName) {
-            e.target.classList.add("select-team__item_active");
-            employeesList.innerHTML += `<div class="employees__teamlead"><div class="employees__teamlead__name">${data.teams[i].teamlead.fullName}</div><div class="employees__teamlead__position">${data.teams[i].teamlead.position}</div></div>`;
-            let divEmployeesList = document.createElement("div");
-            divEmployeesList.setAttribute("class", "employees__list");
-            employeesList.insertAdjacentElement("beforeend", divEmployeesList);
-            let employeesListContainer = employeesList.querySelector(".employees__list");
-            employeesListContainer.innerHTML += `<div id="employees-title" class="employees__list__title">Команда:</div>`;
-            let divEmployeeslistBody = document.createElement("div");
-            divEmployeeslistBody.setAttribute("class", "employees__list__body");
-            divEmployeeslistBody.setAttribute("id", "employees");
-            employeesListContainer.insertAdjacentElement("beforeend", divEmployeeslistBody);
-            let employeesListBodyContainer = employeesList.querySelector(".employees__list__body");
-            for (let j = 0; j < data.teams[i].colleagues.length; j++) employeesListBodyContainer.innerHTML += `<div class="employees__list__body__item">${data.teams[i].colleagues[j].fullName}</div`;
-        }
-        let employeesContainer = document.getElementById("employees");
-        employeesContainer.addEventListener("click", (function(e) {
-            if (e.target.classList.contains("employees__list__body__item")) {
-                addActiveClass(e);
-                showTimer(e);
-            }
-        }));
-    }
-    document.getElementById("popup").setAttribute("style", "display:none");
-    document.getElementById("settings-icon").addEventListener("click", (function() {
-        if ("display:flex" === document.getElementById("popup").getAttribute("style")) {
-            document.getElementById("popup").classList.toggle("popup_visible");
-            document.getElementById("popup").classList.toggle("popup_hidden");
-            setTimeout((function() {
-                document.getElementById("popup").setAttribute("style", "display:none");
-            }), 500);
-        } else {
-            document.getElementById("popup").setAttribute("style", "display:flex");
-            setTimeout((function() {
-                document.getElementById("popup").classList.toggle("popup_hidden");
-                document.getElementById("popup").classList.toggle("popup_visible");
-            }), 500);
-        }
-    }));
-    let input = document.getElementById("time-for-person");
-    if (localStorage.getItem("timeForPersonSaved")) input.setAttribute("placeholder", localStorage.getItem("timeForPersonSaved")); else input.setAttribute("placeholder", timeForPersonDefaultMin);
-    document.getElementById("button-ok").addEventListener("click", (function() {
-        localStorage.setItem("timeForPersonSaved", input.value);
-        document.getElementById("popup").classList.toggle("popup_visible");
-        document.getElementById("popup").classList.toggle("popup_hidden");
-        setTimeout((function() {
-            document.getElementById("popup").setAttribute("style", "display:none");
-        }), 500);
-    }));
-    document.getElementById("button-cancel").addEventListener("click", (function() {
-        document.getElementById("popup").classList.toggle("popup_visible");
-        document.getElementById("popup").classList.toggle("popup_hidden");
-        setTimeout((function() {
-            document.getElementById("popup").setAttribute("style", "display:none");
-        }), 500);
-    }));
+    showTeamMembers();
+    manageSettings();
     window["FLS"] = true;
     isWebp();
 })();
