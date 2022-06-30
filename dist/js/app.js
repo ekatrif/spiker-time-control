@@ -213,14 +213,15 @@
         }
     }
     const jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json";
-    const main_timeForPersonDefaultMin = 5;
     const timeAlarmSec = 30;
     const teamList = document.getElementById("team-list");
-    const timeForPersonDefaultMsec = minsToMsecs(main_timeForPersonDefaultMin);
+    const timeForPersonDefaultMin = 5;
+    const timeForPersonDefaultMsec = minsToMsecs(timeForPersonDefaultMin);
     const timeAlarmMsec = 1e3 * timeAlarmSec;
     const minsDefault = Math.floor(timeForPersonDefaultMsec / 6e4);
     const secsDefault = (timeForPersonDefaultMsec - 6e4 * minsDefault) / 1e3;
     const plugText = "Нажмите на Паузу, чтобы выбрать другого спикера";
+    localStorage.clear();
     let inputSelectGroup = document.getElementById("select-team");
     inputSelectGroup.innerHTML = "<input  type='text' placeholder='Выбор группы'/>";
     inputSelectGroup.addEventListener("click", (function() {

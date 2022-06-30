@@ -1,3 +1,4 @@
+import { timeForPersonDefaultMin } from "./main.js";
 //Настройки
 export function manageSettings() {
   //По умолчанию блок с настройками скрыт
