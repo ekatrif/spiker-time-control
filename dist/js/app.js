@@ -63,7 +63,7 @@
         let minsForm;
         let secsForm;
         let timerMessage;
-        if (localStorage.getItem(activeUser) && localStorage.getItem(activeUser) > 0) timeToEnd = localStorage.getItem(activeUser); else if (localStorage.getItem("timeForPersonSaved")) timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); else timeToEnd = timeForPersonDefaultMsec;
+        if (localStorage.getItem(activeUser) && localStorage.getItem(activeUser) >= 0) timeToEnd = localStorage.getItem(activeUser); else if (localStorage.getItem("timeForPersonSaved")) timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); else timeToEnd = timeForPersonDefaultMsec;
         mins = Math.floor(timeToEnd / 6e4);
         secs = (timeToEnd - 6e4 * mins) / 1e3;
         minsForm = getCorrectForm(mins);

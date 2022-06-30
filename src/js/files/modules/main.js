@@ -68,15 +68,13 @@ function showTimer(e) {
   //Если данные о таймере конкетного сотрудника уже были сохранены (нажималась пауза)
   if (
     localStorage.getItem(activeUser) &&
-    localStorage.getItem(activeUser) > 0
+    localStorage.getItem(activeUser) >= 0
   ) {
     timeToEnd = localStorage.getItem(activeUser); //Получаем данные об оставшемся времени
+  } else if (localStorage.getItem("timeForPersonSaved")) {
+    timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); //Берем время из сохраненных настроек
   } else {
-    if (localStorage.getItem("timeForPersonSaved")) {
-      timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); //Берем время из сохраненных настроек
-    } else {
-      timeToEnd = timeForPersonDefaultMsec; //Берем время по умолчанию
-    }
+    timeToEnd = timeForPersonDefaultMsec; //Берем время по умолчанию
   }
 
   mins = Math.floor(timeToEnd / 60000);
