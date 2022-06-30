@@ -23,7 +23,7 @@
         }
     }), 0);
     const jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json";
-    const timeForPersonDefaultMin = 5;
+    let timeForPersonDefaultMin = 5;
     const timeForPersonDefaultMsec = minsToMsecs(timeForPersonDefaultMin);
     const timeAlarmSec = 30;
     const timeAlarmMsec = 1e3 * timeAlarmSec;
@@ -92,53 +92,62 @@
                 if (timeToEnd < 0) setTimeout((() => {
                     clearInterval(timerId);
                     document.getElementById("timer-message").innerText = "Время истекло";
-                    showTeamsAndEmployees();
+                    let sections = document.getElementsByTagName("section");
+                    for (let i = 0; i < [ ...sections ].length - 1; i++) sections[i].classList.remove("plug");
+                    document.getElementsByTagName("body")[0].removeAttribute("data-tooltip");
+                    document.getElementById("start").classList.remove("button__start_disable");
+                    document.getElementById("pause").classList.add("button__pause_disable");
+                    localStorage.setItem(`${activeUser}`, 0);
+                    isPaused = true;
                 }));
             }
         }), 1e3);
         document.getElementById("pause").addEventListener("click", (function() {
             let sections = document.getElementsByTagName("section");
-            for (let i = 0; i < [ ...sections ].length - 1; i++) {
-                sections[i].classList.toggle("plug");
-                document.getElementsByTagName("main")[0].removeAttribute("data-tooltip");
-            }
-            document.getElementById("employees-title").textContent = "Команда";
+            for (let i = 0; i < [ ...sections ].length - 1; i++) sections[i].classList.remove("plug");
+            document.getElementsByTagName("body")[0].removeAttribute("data-tooltip");
             document.getElementById("start").classList.remove("button__start_disable");
             document.getElementById("pause").classList.add("button__pause_disable");
             isPaused = true;
-            localStorage.setItem(`${activeUser}`, timeToEnd);
+            if (timeToEnd < 0) localStorage.setItem(activeUser, 0); else localStorage.setItem(activeUser, timeToEnd);
         }));
         document.getElementById("start").addEventListener("click", (function() {
             let sections = document.getElementsByTagName("section");
-            for (let i = 0; i < [ ...sections ].length - 1; i++) sections[i].classList.toggle("plug");
-            document.getElementsByTagName("main")[0].setAttribute("data-tooltip", plugText);
+            for (let i = 0; i < [ ...sections ].length - 1; i++) sections[i].classList.add("plug");
+            document.getElementsByTagName("main")[0].addEventListener("mouseover", (function(e) {
+                if (e.target.classList.contains("plug")) document.getElementsByTagName("body")[0].setAttribute("data-tooltip", plugText);
+            }));
+            document.getElementsByTagName("main")[0].addEventListener("mouseout", (function(e) {
+                if (e.target.classList.contains("plug")) document.getElementsByTagName("body")[0].removeAttribute("data-tooltip");
+            }));
             isPaused = false;
             document.getElementById("start").classList.add("button__start_disable");
             document.getElementById("pause").classList.remove("button__pause_disable");
-            if (localStorage.getItem(activeUser) && localStorage.getItem(activeUser) > 0) timeToEnd = localStorage.getItem(activeUser); else if (localStorage.getItem("timeForPersonSaved")) timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); else timeToEnd = timeForPersonDefaultMsec;
+            if (localStorage.getItem(activeUser) && localStorage.getItem(activeUser) > 0 || 0 == localStorage.getItem(activeUser)) timeToEnd = localStorage.getItem(activeUser); else if (localStorage.getItem("timeForPersonSaved")) timeToEnd = minsToMsecs(localStorage.getItem("timeForPersonSaved")); else timeToEnd = timeForPersonDefaultMsec;
         }));
         document.getElementById("reset").addEventListener("click", (function() {
             let sections = document.getElementsByTagName("section");
-            for (let i = 0; i < [ ...sections ].length - 1; i++) {
-                sections[i].classList.toggle("plug");
-                document.getElementsByTagName("main")[0].removeAttribute("data-tooltip");
-            }
-            document.getElementById("employees-title").textContent = "Команда";
+            for (let i = 0; i < [ ...sections ].length - 1; i++) sections[i].classList.remove("plug");
+            document.getElementsByTagName("body")[0].removeAttribute("data-tooltip");
             document.getElementById("start").classList.remove("button__start_disable");
             document.getElementById("pause").classList.remove("button__pause_disable");
             isPaused = true;
             if (localStorage.getItem("timeForPersonSaved")) {
+                localStorage.setItem(activeUser, minsToMsecs(localStorage.getItem("timeForPersonSaved")));
                 let savedTimeMins = localStorage.getItem("timeForPersonSaved");
                 let mins = Math.floor(minsToMsecs(savedTimeMins) / 6e4);
+                let secs = (minsToMsecs(savedTimeMins) - 6e4 * mins) / 1e3;
                 document.getElementById("mins").innerText = mins;
-                document.getElementById("secs").innerText = (minsToMsecs(savedTimeMins) - 6e4 * mins) / 1e3;
+                document.getElementById("secs").innerText = secs;
+                document.getElementById("minsForm").innerText = `Минут${getCorrectForm(mins)}`;
+                document.getElementById("secsForm").innerText = `Секунд${getCorrectForm(secs)}`;
             } else {
+                localStorage.setItem(activeUser, timeForPersonDefaultMsec);
                 document.getElementById("mins").innerText = minsDefault;
                 document.getElementById("secs").innerText = secsDefault;
+                document.getElementById("minsForm").innerText = `Минут${getCorrectForm(minsDefault)}`;
+                document.getElementById("secsForm").innerText = `Секунд${getCorrectForm(secsDefault)}`;
             }
-            document.getElementById("minsForm").innerText = `Минут${getCorrectForm(minsDefault)}`;
-            document.getElementById("secsForm").innerText = `Секунд${getCorrectForm(secsDefault)}`;
-            localStorage.setItem(`${activeUser}`, 0);
             document.getElementById("mins").classList.remove("time__container__body_alarm");
             document.getElementById("secs").classList.remove("time__container__body_alarm");
             document.getElementById("timer-message").innerText = "Оставшееся время";

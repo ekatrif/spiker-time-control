@@ -1,5 +1,5 @@
 const jsonUrl = "https://ekatrif.github.io/spiker-time-control/src/team.json"; //url json с данными о командах
-const timeForPersonDefaultMin = 5; //время на выступление 1 сотрудника, мин
+let timeForPersonDefaultMin = 5; //время на выступление 1 сотрудника, мин
 const timeForPersonDefaultMsec = minsToMsecs(timeForPersonDefaultMin); //время на выступление 1 сотрудника, мсек
 const timeAlarmSec = 30; //за сколько cекунд до конца времени показать предупреждение
 const timeAlarmMsec = timeAlarmSec * 1000; //перевод в миллисекунды
@@ -78,6 +78,7 @@ function showTimer(e) {
       timeToEnd = timeForPersonDefaultMsec; //Берем время по умолчанию
     }
   }
+
   mins = Math.floor(timeToEnd / 60000);
   secs = (timeToEnd - mins * 60000) / 1000;
   minsForm = getCorrectForm(mins); //Получаем правильное окончание для минут
@@ -120,8 +121,26 @@ function showTimer(e) {
           clearInterval(timerId);
           //Выводится сообщение
           document.getElementById("timer-message").innerText = "Время истекло";
-          //Показываем команды и сотрудников
-          showTeamsAndEmployees();
+          //Убираем заглушку на команды и членов команд, чтобы не ломать таймер
+          let sections = document.getElementsByTagName("section");
+          for (let i = 0; i < [...sections].length - 1; i++) {
+            sections[i].classList.remove("plug");
+          }
+          //Убираем подсказку
+          document
+            .getElementsByTagName("body")[0]
+            .removeAttribute("data-tooltip");
+
+          //Меняем состояние кнопок
+          document
+            .getElementById("start")
+            .classList.remove("button__start_disable");
+          document
+            .getElementById("pause")
+            .classList.add("button__pause_disable");
+          //Сброс сохраненного значения таймера
+          localStorage.setItem(`${activeUser}`, 0);
+          isPaused = true;
         });
       }
     }
@@ -133,18 +152,21 @@ function showTimer(e) {
     //Убираем заглушку на команды и членов команд, чтобы не ломать таймер
     let sections = document.getElementsByTagName("section");
     for (let i = 0; i < [...sections].length - 1; i++) {
-      sections[i].classList.toggle("plug");
-      //Убираем подсказку
-      document.getElementsByTagName("main")[0].removeAttribute("data-tooltip");
+      sections[i].classList.remove("plug");
     }
+    //Убираем подсказку
+    document.getElementsByTagName("body")[0].removeAttribute("data-tooltip");
 
-    //Меняем заголовок
-    document.getElementById("employees-title").textContent = "Команда";
+    //Меняем состояние кнопок
     document.getElementById("start").classList.remove("button__start_disable");
     document.getElementById("pause").classList.add("button__pause_disable");
     isPaused = true;
     //Записываем текущее состояние таймера
-    localStorage.setItem(`${activeUser}`, timeToEnd);
+    if (timeToEnd < 0) {
+      localStorage.setItem(activeUser, 0);
+    } else {
+      localStorage.setItem(activeUser, timeToEnd);
+    }
   });
 
   //Начать/продолжить отсчет таймера (кнопка Старт)
@@ -152,19 +174,37 @@ function showTimer(e) {
     //Вешаем заглушку на команды и членов команд, чтобы не ломать таймер
     let sections = document.getElementsByTagName("section");
     for (let i = 0; i < [...sections].length - 1; i++) {
-      sections[i].classList.toggle("plug");
+      sections[i].classList.add("plug");
     }
     //Добавляем подсказку
     document
       .getElementsByTagName("main")[0]
-      .setAttribute("data-tooltip", plugText);
+      .addEventListener("mouseover", function (e) {
+        if (e.target.classList.contains("plug")) {
+          document
+            .getElementsByTagName("body")[0]
+            .setAttribute("data-tooltip", plugText);
+        }
+      });
+    //Убираем подсказку
+    document
+      .getElementsByTagName("main")[0]
+      .addEventListener("mouseout", function (e) {
+        if (e.target.classList.contains("plug")) {
+          document
+            .getElementsByTagName("body")[0]
+            .removeAttribute("data-tooltip");
+        }
+      });
+
     isPaused = false;
     document.getElementById("start").classList.add("button__start_disable");
     document.getElementById("pause").classList.remove("button__pause_disable");
     //Если есть сохраненный таймер, продолжаем отсчет по нему
     if (
-      localStorage.getItem(activeUser) &&
-      localStorage.getItem(activeUser) > 0
+      (localStorage.getItem(activeUser) &&
+        localStorage.getItem(activeUser) > 0) ||
+      localStorage.getItem(activeUser) == 0 //Если время уже истекло
     ) {
       timeToEnd = localStorage.getItem(activeUser);
     }
@@ -183,36 +223,50 @@ function showTimer(e) {
     //Убираем заглушку на команды и членов команд, чтобы не ломать таймер
     let sections = document.getElementsByTagName("section");
     for (let i = 0; i < [...sections].length - 1; i++) {
-      sections[i].classList.toggle("plug");
-      //Убираем подсказку
-      document.getElementsByTagName("main")[0].removeAttribute("data-tooltip");
+      sections[i].classList.remove("plug");
     }
-
-    //Меняем заголовок
-    document.getElementById("employees-title").textContent = "Команда";
+    //Убираем подсказку
+    document.getElementsByTagName("body")[0].removeAttribute("data-tooltip");
+    //Меняем состояние кнопок
     document.getElementById("start").classList.remove("button__start_disable");
     document.getElementById("pause").classList.remove("button__pause_disable");
     isPaused = true;
+
     //Выводим сброшенные минуты и секунды таймера, используем либо время по умолчанию, либо сохраненное в настройках
     if (localStorage.getItem("timeForPersonSaved")) {
+      //записываем новое время в localStorage
+      localStorage.setItem(
+        activeUser,
+        minsToMsecs(localStorage.getItem("timeForPersonSaved"))
+      );
       let savedTimeMins = localStorage.getItem("timeForPersonSaved");
       let mins = Math.floor(minsToMsecs(savedTimeMins) / 60000);
+      let secs = (minsToMsecs(savedTimeMins) - mins * 60000) / 1000;
       document.getElementById("mins").innerText = mins;
-      document.getElementById("secs").innerText =
-        (minsToMsecs(savedTimeMins) - mins * 60000) / 1000;
+      document.getElementById("secs").innerText = secs;
+
+      //Выводим слови "минут", "секунд" в правильной форме
+      document.getElementById("minsForm").innerText = `Минут${getCorrectForm(
+        mins
+      )}`;
+      document.getElementById("secsForm").innerText = `Секунд${getCorrectForm(
+        secs
+      )}`;
     } else {
+      //записываем время по умолчанию в localStorage
+      localStorage.setItem(activeUser, timeForPersonDefaultMsec);
       document.getElementById("mins").innerText = minsDefault;
       document.getElementById("secs").innerText = secsDefault;
+      //Выводим слови "минут", "секунд" в правильной форме
+      document.getElementById("minsForm").innerText = `Минут${getCorrectForm(
+        minsDefault
+      )}`;
+      document.getElementById("secsForm").innerText = `Секунд${getCorrectForm(
+        secsDefault
+      )}`;
     }
-    //Выводим слови "минут", "секунд" в правильной форме
-    document.getElementById("minsForm").innerText = `Минут${getCorrectForm(
-      minsDefault
-    )}`;
-    document.getElementById("secsForm").innerText = `Секунд${getCorrectForm(
-      secsDefault
-    )}`;
-    //Сброс сохраненного значения таймера
-    localStorage.setItem(`${activeUser}`, 0);
+
+    //Убираем тревожные сообщения
     document
       .getElementById("mins")
       .classList.remove("time__container__body_alarm");
@@ -336,6 +390,7 @@ if (localStorage.getItem("timeForPersonSaved")) {
 document.getElementById("button-ok").addEventListener("click", function () {
   //Сохраняем настройки
   localStorage.setItem("timeForPersonSaved", input.value);
+
   //Закрываем окно настроек
   document.getElementById("popup").classList.toggle("popup_visible");
   document.getElementById("popup").classList.toggle("popup_hidden");
